@@ -20,31 +20,51 @@ async function run () {
     const database = client.db('real_watch');
     const productCollections = database.collection('products');
     const orderCollections = database.collection('orders')
+    const reviewCollections = database.collection('reviews')
 
+    // get api products
     app.get('/products', async (req,res)=> {
       const cursor = productCollections.find({})
       const products = await cursor.toArray()
       res.send(products)
     })
-    
+    // get api products/id
     app.get('/products/:id', async (req,res)=>{
       const id = req.params.id;
       const query = {_id : ObjectId(id)}
       const product = await productCollections.findOne(query)
       res.json(product)
     })
-    
+    // get api orders
     app.get('/orders', async (req,res)=> {
       const cursor = orderCollections.find({})
       const products = await cursor.toArray()
       res.send(products)
     })
-
+    app.get('/reviews', async (req,res)=> {
+      const cursor = reviewCollections.find({})
+      const reviews = await cursor.toArray()
+      res.send(reviews)
+    })
+    // Post api orders
     app.post('/orders',async(req,res)=>{
       const order = req.body;
       const result = await orderCollections.insertOne(order)
       console.log(result);
       res.json(result)
+    })
+    app.post('/reviews',async(req,res)=>{
+      const reviews = req.body;
+      const result = await reviewCollections.insertOne(reviews)
+      res.json(result)
+    })
+
+    // Delete api
+    app.delete('orders/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : ObjectId(id)}
+      const orderDelete = await orderCollections.deleteOne(query)
+      res.json(orderDelete)
     })
 
     }
