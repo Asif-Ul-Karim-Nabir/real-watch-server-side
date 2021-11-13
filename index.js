@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId
 const app = express()
 const cors = require('cors')
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 4000
 require('dotenv').config()
 
 // Middle Ware 
@@ -19,18 +19,32 @@ async function run () {
         
     const database = client.db('real_watch');
     const productCollections = database.collection('products');
+    const orderCollections = database.collection('orders')
 
     app.get('/products', async (req,res)=> {
       const cursor = productCollections.find({})
       const products = await cursor.toArray()
       res.send(products)
     })
-
+    
     app.get('/products/:id', async (req,res)=>{
       const id = req.params.id;
       const query = {_id : ObjectId(id)}
       const product = await productCollections.findOne(query)
       res.json(product)
+    })
+    
+    app.get('/orders', async (req,res)=> {
+      const cursor = orderCollections.find({})
+      const products = await cursor.toArray()
+      res.send(products)
+    })
+
+    app.post('/orders',async(req,res)=>{
+      const order = req.body;
+      const result = await orderCollections.insertOne(order)
+      console.log(result);
+      res.json(result)
     })
 
     }
