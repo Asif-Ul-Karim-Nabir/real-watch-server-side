@@ -37,6 +37,13 @@ async function run () {
       const product = await productCollections.findOne(query)
       res.json(product)
     })
+    // post api products
+    app.post('/products',async(req,res)=>{
+      const product = req.body;
+      const result = await productCollections.insertOne(product)
+      console.log(result);
+      res.json(result)
+    })
 
     // Orders Collections 
     // get api orders
@@ -52,12 +59,16 @@ async function run () {
       console.log(result);
       res.json(result)
     })
-    // Delete api 
-    app.get('orders/:id',async(req,res)=>{
-      const id = req.params.id;
-      const query = {_id : ObjectId(id)}
-      const orderDelete = await orderCollections.deleteOne(query)
-      res.json(orderDelete)
+    // delete api order/email
+    app.delete('/orders/:email', async (req,res)=>{
+      const email = req.params.email;
+      const query = {email:email}
+      const user = await orderCollections.deleteOne(query);
+      let isOrder = false;
+      if(user?.email === email){
+        isOrder = true;
+      }
+      res.json({order: isOrder})
     })
 
     // Reviews Collections
