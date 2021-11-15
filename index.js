@@ -41,7 +41,6 @@ async function run () {
     app.post('/products',async(req,res)=>{
       const product = req.body;
       const result = await productCollections.insertOne(product)
-      console.log(result);
       res.json(result)
     })
 
@@ -56,7 +55,6 @@ async function run () {
     app.post('/orders',async(req,res)=>{
       const order = req.body;
       const result = await orderCollections.insertOne(order)
-      console.log(result);
       res.json(result)
     })
     // delete api order/email
@@ -64,11 +62,7 @@ async function run () {
       const email = req.params.email;
       const query = {email:email}
       const user = await orderCollections.deleteOne(query);
-      let isOrder = false;
-      if(user?.email === email){
-        isOrder = true;
-      }
-      res.json({order: isOrder})
+      res.json(user)
     })
 
     // Reviews Collections
@@ -90,7 +84,6 @@ async function run () {
     app.post('/users',async(req,res)=>{
       const user = req.body;
       const result = await userCollections.insertOne(user)
-      console.log(result);
       res.json(result)
     })
     // put api users
@@ -100,7 +93,6 @@ async function run () {
       const option = {upsert:true}
       const updateDoc = {$set:user}
       const result = await userCollections.updateOne(filter,updateDoc,option)
-      console.log(result);
       res.json(result)
     })
     //put api users/admin
@@ -109,7 +101,6 @@ async function run () {
       const filter = {email : user.email}
       const updateDoc = {$set: {role:'admin'}}
       const result = await userCollections.updateOne(filter,updateDoc)
-      console.log(result);
       res.json(result)
     })
     // get api users/email
