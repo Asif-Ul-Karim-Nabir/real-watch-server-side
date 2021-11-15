@@ -19,9 +19,11 @@ async function run () {
         
     const database = client.db('real_watch');
     const productCollections = database.collection('products');
+    const userCollections = database.collection('users')
     const orderCollections = database.collection('orders')
     const reviewCollections = database.collection('reviews')
 
+    // Products Collections 
     // get api products
     app.get('/products', async (req,res)=> {
       const cursor = productCollections.find({})
@@ -35,36 +37,81 @@ async function run () {
       const product = await productCollections.findOne(query)
       res.json(product)
     })
+
+    // Orders Collections 
     // get api orders
     app.get('/orders', async (req,res)=> {
       const cursor = orderCollections.find({})
       const products = await cursor.toArray()
       res.send(products)
     })
-    app.get('/reviews', async (req,res)=> {
-      const cursor = reviewCollections.find({})
-      const reviews = await cursor.toArray()
-      res.send(reviews)
-    })
-    // Post api orders
+    // post api orders
     app.post('/orders',async(req,res)=>{
       const order = req.body;
       const result = await orderCollections.insertOne(order)
       console.log(result);
       res.json(result)
     })
+    // Delete api 
+    app.get('orders/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : ObjectId(id)}
+      const orderDelete = await orderCollections.deleteOne(query)
+      res.json(orderDelete)
+    })
+
+    // Reviews Collections
+    // get api reviews
+    app.get('/reviews', async (req,res)=> {
+      const cursor = reviewCollections.find({})
+      const reviews = await cursor.toArray()
+      res.send(reviews)
+    })
+    // post api reviews
     app.post('/reviews',async(req,res)=>{
       const reviews = req.body;
       const result = await reviewCollections.insertOne(reviews)
       res.json(result)
     })
 
-    // Delete api
-    app.get('orders/:id',async(req,res)=>{
-      const id = req.params.id;
-      const query = {_id : ObjectId(id)}
-      const orderDelete = await orderCollections.deleteOne(query)
-      res.json(orderDelete)
+    // Users Collections
+    // Post api users
+    app.post('/users',async(req,res)=>{
+      const user = req.body;
+      const result = await userCollections.insertOne(user)
+      console.log(result);
+      res.json(result)
+    })
+    // put api users
+    app.put('/users',async(req,res)=>{
+      const user = req.body;
+      const filter = {email : user.email}
+      const option = {upsert:true}
+      const updateDoc = {$set:user}
+      const result = await userCollections.updateOne(filter,updateDoc,option)
+      console.log(result);
+      res.json(result)
+    })
+    //put api users/admin
+    app.put('/users/admin',async(req,res)=>{
+      const user = req.body;
+      const filter = {email : user.email}
+      const updateDoc = {$set: {role:'admin'}}
+      const result = await userCollections.updateOne(filter,updateDoc)
+      console.log(result);
+      res.json(result)
+    })
+    // get api users/email
+    app.get('/users/:email',async (req,res)=>{
+      const email = req.params.email;
+      console.log(email);
+      const query = {email:email}
+      const user = await userCollections.findOne(query);
+      let isAdmin = false;
+      if(user?.role === 'admin'){
+        isAdmin = true;
+      }
+      res.json({admin: isAdmin})
     })
 
     }
